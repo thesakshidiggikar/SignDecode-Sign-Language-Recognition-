@@ -1,14 +1,20 @@
 import cv2
 import numpy as np
+import pyttsx3  # Text-to-Speech
 from model_loader import load_asl_model
-from hand_tracking import get_hand_landmarks
-from init import save_text_to_file
+from hand_tracking import HandTracker
 import tkinter as tk
 from tkinter import Button, Label
 
+# Initialize Text-to-Speech Engine
+engine = pyttsx3.init()
+
 # Load the trained ASL model
 model = load_asl_model()
-classes = list("0123456789abcdefghijklmnopqrstuvwxyz")  # 36 classes
+classes = list("0123456789abcdefghijklmnopqrstuvwxyz")  # Ensure 36 classes
+
+# Initialize Hand Tracker
+tracker = HandTracker()
 
 # Initialize webcam
 cap = cv2.VideoCapture(0)
@@ -16,7 +22,7 @@ recognized_text = ""
 
 # Tkinter GUI Setup
 root = tk.Tk()
-root.title("Sign Language to Text")
+root.title("Sign Language to Speech")
 root.geometry("800x500")
 
 # Label to show recognized text
@@ -43,9 +49,10 @@ def clear_text():
     text_box.delete("1.0", tk.END)
 
 
-# Function to save text
-def save_text():
-    save_text_to_file(recognized_text)
+# Function to convert text to speech
+def speak_text():
+    engine.say(recognized_text)
+    engine.runAndWait()
 
 
 # Buttons for GUI
@@ -53,10 +60,12 @@ btn_clear = Button(
     root, text="Clear All", command=clear_text, bg="yellow", font=("Arial", 12)
 )
 btn_clear.pack()
-btn_save = Button(
-    root, text="Tap to speak", command=save_text, bg="green", font=("Arial", 12)
+
+btn_speak = Button(
+    root, text="Speak", command=speak_text, bg="green", font=("Arial", 12)
 )
-btn_save.pack()
+btn_speak.pack()
+
 btn_quit = Button(root, text="Quit", command=root.quit, bg="red", font=("Arial", 12))
 btn_quit.pack()
 
@@ -64,12 +73,13 @@ btn_quit.pack()
 # Video Processing Loop
 def process_video():
     global recognized_text
+
     ret, frame = cap.read()
     if not ret:
         return
 
     frame = cv2.flip(frame, 1)  # Flip for mirror effect
-    hand_landmarks = get_hand_landmarks(frame)
+    hand_landmarks = tracker.get_hand_landmarks(frame)  # FIXED: Using tracker instance
 
     if hand_landmarks is not None:
         prediction = model.predict(hand_landmarks)

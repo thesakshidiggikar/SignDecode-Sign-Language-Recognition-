@@ -1,21 +1,20 @@
 import cv2
 import numpy as np
-import pyttsx3  # Import text-to-speech library
+import pyttsx3  # Text-to-Speech
 from model_loader import load_asl_model
 import hand_tracking
+from hand_tracking import HandTracker
 import tkinter as tk
 from tkinter import Button, Label
-from hand_tracking import HandTracker
 
 # Initialize Text-to-Speech Engine
 engine = pyttsx3.init()
 
 # Load the trained ASL model
 model = load_asl_model()
-classes = list("0123456789abcdefghijklmnopqrstuvwxyz")
+classes = list("0123456789abcdefghijklmnopqrstuvwxyz")  # Ensure all 36 classes
 
-
-# Initialize HandTracker
+# Initialize Hand Tracker
 hand_tracker = HandTracker()
 
 # Initialize webcam
@@ -37,14 +36,6 @@ text_box.pack()
 
 last_character = None
 space_detected = False  # Track when space is detected
-
-
-# Function to update the displayed text
-def update_text(new_char):
-    global recognized_text
-    recognized_text += new_char
-    text_box.delete("1.0", tk.END)
-    text_box.insert(tk.END, recognized_text)
 
 
 # Function to clear text
@@ -75,6 +66,14 @@ btn_quit = Button(root, text="Quit", command=root.quit, bg="red", font=("Arial",
 btn_quit.pack()
 
 
+# Debugging function to print raw predictions
+def debug_predictions(prediction):
+    print("\nRaw Model Output:")
+    print(prediction)
+    print("Predicted Class Index:", np.argmax(prediction))
+    print("Predicted Character:", classes[np.argmax(prediction)])
+
+
 def process_video():
     global recognized_text, last_character, space_detected
 
@@ -86,35 +85,36 @@ def process_video():
     hand_landmarks = hand_tracker.get_hand_landmarks(frame)
 
     if hand_landmarks is not None and isinstance(hand_landmarks, np.ndarray):
-        num_hands = hand_landmarks.shape[1] // 42  # Determine number of hands
+        num_hands = hand_landmarks.shape[1] // 42  # Check number of hands detected
 
         if num_hands == 1:
-            prediction = model.predict(hand_landmarks)  # Predict with one hand
+            prediction = model.predict(hand_landmarks)  # Predict for one hand
         elif num_hands == 2:
             prediction = model.predict(
                 hand_landmarks[:, :42]
-            )  # Use only first hand for now
+            )  # Use only the first hand
+
+        debug_predictions(prediction)  # Print debugging info
 
         class_index = np.argmax(prediction)
-        recognized_char = classes[class_index]  # Get predicted letter
+        recognized_char = classes[class_index]  # Get predicted letter/number
 
-        # Check for "open hand" gesture (which should be mapped to space)
-        if recognized_char == "5":  # Assuming "5" means an open palm
+        # Check for "open hand" gesture (assuming mapped to space)
+        if recognized_char == "5":  # Modify this based on actual dataset
             if not space_detected:  # Prevent repeated spaces
                 recognized_text += " "
-                space_detected = True  # Mark that space was added
-            last_character = None  # Reset last character after space
-
+                space_detected = True
+            last_character = None
         else:
-            space_detected = False  # Reset space flag when another sign appears
+            space_detected = False  # Reset space flag
 
-            if recognized_char != last_character:  # Prevent continuous repetition
+            if recognized_char != last_character:  # Avoid repetition
                 recognized_text += recognized_char
                 last_character = recognized_char  # Update last character
 
         # Update GUI
         text_box.delete("1.0", tk.END)
-        text_box.insert(tk.END, recognized_text)  # Keep spaces in display
+        text_box.insert(tk.END, recognized_text)
 
     # Display Webcam Feed
     cv2.imshow("Sign Language Recognition", frame)
