@@ -54,7 +54,7 @@ btn_clear = Button(
 )
 btn_clear.pack()
 btn_save = Button(
-    root, text="Save to a Text File", command=save_text, bg="green", font=("Arial", 12)
+    root, text="Tap to speak", command=save_text, bg="green", font=("Arial", 12)
 )
 btn_save.pack()
 btn_quit = Button(root, text="Quit", command=root.quit, bg="red", font=("Arial", 12))

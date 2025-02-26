@@ -12,7 +12,8 @@ engine = pyttsx3.init()
 
 # Load the trained ASL model
 model = load_asl_model()
-classes = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")  # Define class labels
+classes = list("0123456789abcdefghijklmnopqrstuvwxyz")
+
 
 # Initialize HandTracker
 hand_tracker = HandTracker()
