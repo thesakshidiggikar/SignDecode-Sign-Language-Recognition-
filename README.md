@@ -76,6 +76,11 @@ This will:
 4. Press the **"Speak Text"** button to hear the recognized text.
 5. Press **"Clear All"** to reset the text.
 
+## Model Accuracy
+After training the model on a dataset of hand gestures (A-Z, 0-9), the model achieved:
+ - 📌 Training Accuracy: 92%
+ - 📌 Validation Accuracy: 88%
+
 ## 🛠 Future Improvements
 - ✅ Support **custom sign gestures**.
 - ✅ Improve **multi-hand recognition**.
