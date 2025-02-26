@@ -1,0 +1,133 @@
+import cv2
+import numpy as np
+import pyttsx3  # Import text-to-speech library
+from model_loader import load_asl_model
+import hand_tracking
+import tkinter as tk
+from tkinter import Button, Label
+from hand_tracking import HandTracker
+
+# Initialize Text-to-Speech Engine
+engine = pyttsx3.init()
+
+# Load the trained ASL model
+model = load_asl_model()
+classes = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")  # Define class labels
+
+# Initialize HandTracker
+hand_tracker = HandTracker()
+
+# Initialize webcam
+cap = cv2.VideoCapture(0)
+recognized_text = ""
+
+# Tkinter GUI Setup
+root = tk.Tk()
+root.title("Sign Language to Speech")
+root.geometry("800x500")
+
+# Label to show recognized text
+label_text = tk.Label(root, text="Recognized Text: ", font=("Arial", 16))
+label_text.pack()
+
+# Textbox for recognized output
+text_box = tk.Text(root, height=4, width=50, font=("Arial", 14))
+text_box.pack()
+
+last_character = None
+space_detected = False  # Track when space is detected
+
+
+# Function to update the displayed text
+def update_text(new_char):
+    global recognized_text
+    recognized_text += new_char
+    text_box.delete("1.0", tk.END)
+    text_box.insert(tk.END, recognized_text)
+
+
+# Function to clear text
+def clear_text():
+    global recognized_text
+    recognized_text = ""
+    text_box.delete("1.0", tk.END)
+
+
+# Function to convert text to speech
+def speak_text():
+    engine.say(recognized_text)
+    engine.runAndWait()
+
+
+# Buttons for GUI
+btn_clear = Button(
+    root, text="Clear All", command=clear_text, bg="yellow", font=("Arial", 12)
+)
+btn_clear.pack()
+
+btn_speak = Button(
+    root, text="Speak Text", command=speak_text, bg="green", font=("Arial", 12)
+)
+btn_speak.pack()
+
+btn_quit = Button(root, text="Quit", command=root.quit, bg="red", font=("Arial", 12))
+btn_quit.pack()
+
+
+def process_video():
+    global recognized_text, last_character, space_detected
+
+    ret, frame = cap.read()
+    if not ret:
+        return
+
+    frame = cv2.flip(frame, 1)  # Flip for mirror effect
+    hand_landmarks = hand_tracker.get_hand_landmarks(frame)
+
+    if hand_landmarks is not None and isinstance(hand_landmarks, np.ndarray):
+        num_hands = hand_landmarks.shape[1] // 42  # Determine number of hands
+
+        if num_hands == 1:
+            prediction = model.predict(hand_landmarks)  # Predict with one hand
+        elif num_hands == 2:
+            prediction = model.predict(
+                hand_landmarks[:, :42]
+            )  # Use only first hand for now
+
+        class_index = np.argmax(prediction)
+        recognized_char = classes[class_index]  # Get predicted letter
+
+        # Check for "open hand" gesture (which should be mapped to space)
+        if recognized_char == "5":  # Assuming "5" means an open palm
+            if not space_detected:  # Prevent repeated spaces
+                recognized_text += " "
+                space_detected = True  # Mark that space was added
+            last_character = None  # Reset last character after space
+
+        else:
+            space_detected = False  # Reset space flag when another sign appears
+
+            if recognized_char != last_character:  # Prevent continuous repetition
+                recognized_text += recognized_char
+                last_character = recognized_char  # Update last character
+
+        # Update GUI
+        text_box.delete("1.0", tk.END)
+        text_box.insert(tk.END, recognized_text)  # Keep spaces in display
+
+    # Display Webcam Feed
+    cv2.imshow("Sign Language Recognition", frame)
+
+    # Exit if 'q' is pressed
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        cap.release()
+        cv2.destroyAllWindows()
+        root.quit()
+
+    # Call again
+    root.after(10, process_video)
+
+
+# Start Video Processing
+root.after(10, process_video)
+root.mainloop()

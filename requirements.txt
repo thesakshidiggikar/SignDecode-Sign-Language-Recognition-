@@ -1,0 +1,6 @@
+opencv-python
+tensorflow
+mediapipe
+numpy
+pillow
+pyttsx3
