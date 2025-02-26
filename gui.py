@@ -19,7 +19,7 @@ class SignLanguageGUI:
 
         # Window Configuration
         self.root.title("Sign Language Recognition")
-        self.root.geometry("800x600")  # Adjust window size
+        self.root.geometry("800x600")
 
         # Webcam Feed Dimensions
         self.frame_width = width
@@ -61,7 +61,7 @@ class SignLanguageGUI:
 
         self.stop_button = Button(
             button_frame,
-            text="Stop",
+            text="Quit",
             command=self.stop_application,
             font=("Arial", 12),
             bg="red",
@@ -108,18 +108,24 @@ class SignLanguageGUI:
         # Hand Detection
         results = self.hands.process(frame_rgb)
         hand_detected = False
+
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 # Get bounding box for hand
                 h, w, c = frame.shape
                 x_min, y_min = w, h
                 x_max, y_max = 0, 0
+
                 for lm in hand_landmarks.landmark:
                     x, y = int(lm.x * w), int(lm.y * h)
                     x_min, y_min = min(x, x_min), min(y, y_min)
                     x_max, y_max = max(x, x_max), max(y, y_max)
 
-                # Draw yellow bounding box (without drawing landmarks)
+                # Ensure valid bounding box
+                if x_min >= x_max or y_min >= y_max:
+                    continue  # Skip invalid region
+
+                # Draw yellow bounding box
                 cv2.rectangle(
                     frame,
                     (x_min - 10, y_min - 10),
@@ -130,41 +136,43 @@ class SignLanguageGUI:
 
                 # Extract region of interest (ROI) for prediction
                 roi_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                roi_resized = (
-                    cv2.resize(roi_gray[y_min:y_max, x_min:x_max], (64, 64)).reshape(
-                        1, 64, 64, 1
-                    )
-                    / 255.0
-                )
+                roi = roi_gray[y_min:y_max, x_min:x_max]
+
+                # Check if ROI is valid
+                if roi.shape[0] == 0 or roi.shape[1] == 0:
+                    continue  # Skip if ROI is empty
+
+                # Resize and normalize the image
+                roi_resized = cv2.resize(roi, (64, 64))
+                roi_resized = roi_resized.reshape(1, 64, 64, 1) / 255.0  # Normalize
 
                 # Predict sign
                 prediction = self.model.predict(roi_resized)
                 class_index = np.argmax(prediction)
                 recognized_char = self.labels[class_index]
 
-                # Avoid repeated letters (e.g., "LL")
+                hand_detected = True
+
+                # **Instantly update text field (No delay)**
                 if recognized_char != self.previous_prediction:
                     self.text_box.insert("end", recognized_char)
                     self.previous_prediction = recognized_char
-
-                hand_detected = True
 
         # Convert frame for Tkinter display
         image_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         image_pil = image_pil.resize(
             (self.frame_width, self.frame_height), Image.LANCZOS
-        )  # Resize frame
+        )
         img = ImageTk.PhotoImage(image=image_pil)
 
-        # Update video feed in Tkinter
         self.video_label.configure(image=img)
         self.video_label.image = img  # Keep reference
 
-        # If no hand is detected, reset previous prediction to allow new detection
+        # Reset prediction if no hand is detected
         if not hand_detected:
             self.previous_prediction = ""
 
-        # Schedule next frame update
+        # Update frame every 10ms
         self.root.after(10, self.update_frame)
 
     def run(self):
