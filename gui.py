@@ -19,55 +19,46 @@ class SignLanguageGUI:
 
         # Window Configuration
         self.root.title("Sign Language Recognition")
-        self.root.geometry("800x600")
+        self.root.geometry("900x700")
+        self.root.configure(bg="#1E1E1E")  # Dark background
 
-        # Webcam Feed Dimensions
-        self.frame_width = width
-        self.frame_height = height
+        # Gradient Background Frame
+        self.bg_frame = tk.Frame(self.root, bg="#282828")
+        self.bg_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Webcam Feed Label
         self.video_label = Label(
-            self.root, width=self.frame_width, height=self.frame_height
+            self.bg_frame, width=width, height=height, bg="black", relief="solid"
         )
-        self.video_label.pack()
+        self.video_label.pack(pady=10)
 
         # Recognized Text Box
-        self.text_box = Text(self.root, height=2, width=40, font=("Arial", 14))
-        self.text_box.pack(pady=5)
+        self.text_box = Text(
+            self.bg_frame,
+            height=2,
+            width=40,
+            font=("Arial", 18, "bold"),
+            fg="white",
+            bg="#333",
+            relief="flat",
+            bd=4,
+        )
+        self.text_box.pack(pady=10)
 
         # Button Frame
-        button_frame = tk.Frame(self.root)
+        button_frame = tk.Frame(self.bg_frame, bg="#282828")
         button_frame.pack(pady=5)
 
-        # Buttons
-        self.clear_button = Button(
-            button_frame,
-            text="Clear Text",
-            command=self.clear_text,
-            font=("Arial", 12),
-            bg="yellow",
+        # Styled Buttons
+        self.clear_button = self.create_styled_button(
+            button_frame, "Clear Text", self.clear_text, "#FFA500"
         )
-        self.clear_button.pack(side="left", padx=5)
-
-        self.speak_button = Button(
-            button_frame,
-            text="Tap to Speak",
-            command=self.speak_text,
-            font=("Arial", 12),
-            bg="blue",
-            fg="white",
+        self.speak_button = self.create_styled_button(
+            button_frame, "Speak", self.speak_text, "#007ACC"
         )
-        self.speak_button.pack(side="left", padx=5)
-
-        self.stop_button = Button(
-            button_frame,
-            text="Quit",
-            command=self.stop_application,
-            font=("Arial", 12),
-            bg="red",
-            fg="white",
+        self.stop_button = self.create_styled_button(
+            button_frame, "Exit", self.stop_application, "#FF5733"
         )
-        self.stop_button.pack(side="left", padx=5)
 
         # OpenCV Webcam
         self.cap = cv2.VideoCapture(0)
@@ -77,10 +68,29 @@ class SignLanguageGUI:
         self.hands = self.mp_hands.Hands(
             min_detection_confidence=0.5, min_tracking_confidence=0.5
         )
-        self.mp_draw = mp.solutions.drawing_utils
 
         # Start Video Processing
         self.update_frame()
+
+    def create_styled_button(self, parent, text, command, color):
+        """Creates a rounded, stylish button with hover effect."""
+        btn = Button(
+            parent,
+            text=text,
+            command=command,
+            font=("Arial", 12, "bold"),
+            bg=color,
+            fg="white",
+            relief="flat",
+            width=15,
+            height=2,
+            cursor="hand2",
+            borderwidth=2,
+        )
+        btn.pack(side="left", padx=10, pady=5)
+        btn.bind("<Enter>", lambda e: btn.config(bg="white", fg=color))
+        btn.bind("<Leave>", lambda e: btn.config(bg=color, fg="white"))
+        return btn
 
     def clear_text(self):
         self.text_box.delete("1.0", "end")
@@ -111,11 +121,9 @@ class SignLanguageGUI:
 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                # Get bounding box for hand
                 h, w, c = frame.shape
                 x_min, y_min = w, h
                 x_max, y_max = 0, 0
-
                 for lm in hand_landmarks.landmark:
                     x, y = int(lm.x * w), int(lm.y * h)
                     x_min, y_min = min(x, x_min), min(y, y_min)
@@ -134,7 +142,7 @@ class SignLanguageGUI:
                     2,
                 )
 
-                # Extract region of interest (ROI) for prediction
+                # Extract ROI for prediction
                 roi_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 roi = roi_gray[y_min:y_max, x_min:x_max]
 
@@ -153,16 +161,14 @@ class SignLanguageGUI:
 
                 hand_detected = True
 
-                # **Instantly update text field (No delay)**
+                # Instant recognition - No delay
                 if recognized_char != self.previous_prediction:
                     self.text_box.insert("end", recognized_char)
                     self.previous_prediction = recognized_char
 
         # Convert frame for Tkinter display
         image_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        image_pil = image_pil.resize(
-            (self.frame_width, self.frame_height), Image.LANCZOS
-        )
+        image_pil = image_pil.resize((640, 480), Image.LANCZOS)
         img = ImageTk.PhotoImage(image=image_pil)
 
         self.video_label.configure(image=img)
@@ -177,3 +183,4 @@ class SignLanguageGUI:
 
     def run(self):
         self.root.mainloop()
+
