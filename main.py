@@ -1,37 +1,21 @@
 import cv2
-import os
+import mediapipe as mp
 import numpy as np
 import pyttsx3
-import tkinter as tk
-from PIL import Image, ImageTk
-from gui import SignLanguageGUI  # Import GUI class
+from collections import deque
 from tensorflow.keras.models import load_model
+from ui import SignLanguageApp
+from labels import labels
 
-# Fix path issue
-model_path = r"E:\MCA\Sem 2\Project\code\SignDecode-Sign-Language-Recognition-\model\asl_model.h5"
+# Load trained sign language model
+model = load_model("sign_language_model.h5")
 
-# Load trained model
-model = load_model(model_path)  # Ensure this file exists
-
-# Extract labels dynamically from dataset folder names
-DATASET_PATH = "images/asl_dataset/"
-labels = sorted(os.listdir(DATASET_PATH))  # Sort to maintain order
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7)
+mp_draw = mp.solutions.drawing_utils
 
 
-# Initialize webcam
 cap = cv2.VideoCapture(0)
 
-# Initialize GUI
-root = tk.Tk()
-hand_tracker = None  # Not needed, handled inside GUI
-app = SignLanguageGUI(
-    root=root, model=model, labels=labels, width=640, height=480
-)  # Adjust webcam size
-
-
-# Start the application
-app.run()
-
-# Release resources on exit
-cap.release()
-cv2.destroyAllWindows()
+# Start the UI application
+SignLanguageApp(cap, model, hands, mp_draw, labels)
