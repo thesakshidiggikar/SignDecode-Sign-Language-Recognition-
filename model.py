@@ -6,7 +6,7 @@ class SignLanguageModel:
         self.model = load_model(model_path)
 
     def predict_sign(self, keypoints):
-        keypoints = np.expand_dims(keypoints, axis=0) 
+        keypoints = np.expand_dims(keypoints, axis=0)  # Reshape for model input
         prediction = self.model.predict(keypoints,verbose = 0)
         predicted_label = np.argmax(prediction)
         return predicted_label

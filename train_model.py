@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -24,6 +25,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2,
 # Define Neural Network Model
 model = Sequential([
     Dense(128, activation='relu', input_shape=(X_train.shape[1],)),
+    Dropout(0.3),
+    Dense(64, activation='relu'),
     Dropout(0.3),
     Dense(64, activation='relu'),
     Dropout(0.3),
