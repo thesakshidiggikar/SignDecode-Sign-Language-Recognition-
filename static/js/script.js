@@ -58,13 +58,13 @@ camera.start();
 function recognizeSign(landmarks) {
     // Basic finger state detection
     // landmarks[i] : x, y, z (normalized)
-    
+
     const thumbTip = landmarks[4];
     const indexTip = landmarks[8];
     const middleTip = landmarks[12];
     const ringTip = landmarks[16];
     const pinkyTip = landmarks[20];
-    
+
     const indexBase = landmarks[5];
     const middleBase = landmarks[9];
     const ringBase = landmarks[13];
@@ -78,7 +78,7 @@ function recognizeSign(landmarks) {
 
     // A: All fingers folded, thumb on side
     if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) return "A";
-    
+
     // B: All fingers up, thumb folded
     if (isIndexUp && isMiddleUp && isRingUp && isPinkyUp) return "B";
 
@@ -103,6 +103,10 @@ const labels = ['A', 'B', 'L', 'V', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; // 
 
 function onResults(results) {
     canvasCtx.save();
+    // Mirror the display horizontally
+    canvasCtx.translate(canvasElement.width, 0);
+    canvasCtx.scale(-1, 1);
+
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
@@ -125,7 +129,7 @@ function onResults(results) {
                     outputText += predicted;
                     textBox.innerText = outputText;
                     frameCount = 0;
-                    
+
                     // Game Check
                     if (gameActive && predicted === currentTarget) {
                         celebrateMatch();
@@ -158,7 +162,7 @@ function celebrateMatch() {
     gameScore++;
     scoreEl.innerText = gameScore;
     feedbackEl.innerText = "Great job! You got it!";
-    
+
     // Pause briefly before next sign
     setTimeout(() => {
         if (gameActive) getNewTarget();
