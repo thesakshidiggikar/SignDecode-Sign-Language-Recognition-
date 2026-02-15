@@ -84,9 +84,10 @@ body {
 
 .menu-toggle {
     display: none;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     cursor: pointer;
     color: var(--text-dark);
+    z-index: 1002;
 }
 
 /* Buttons */
@@ -502,7 +503,7 @@ footer {
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
     .navbar {
         width: 95%;
         padding: 1rem 5%;
@@ -511,31 +512,33 @@ footer {
 
     .menu-toggle {
         display: block;
-        margin-left: auto;
     }
 
     .nav-links {
-        position: absolute;
-        top: 80px;
+        position: fixed;
+        top: 0;
         right: 0;
-        width: 250px;
-        height: auto;
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
+        width: 280px;
+        height: 100vh;
+        background: var(--bg-white);
         flex-direction: column;
+        justify-content: center;
         align-items: center;
-        padding: 30px 0;
-        gap: 20px;
-        transform: translateX(150%);
-        transition: transform 0.3s ease-in-out;
-        box-shadow: var(--shadow-soft);
+        gap: 30px;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
         z-index: 1001;
+        padding-top: 60px;
     }
 
     .nav-links.active {
-        transform: translateX(-15px);
+        transform: translateX(0);
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
     }
 
     .hero {
