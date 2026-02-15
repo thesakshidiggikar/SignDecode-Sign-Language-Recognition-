@@ -124,9 +124,6 @@ const labels = ['A', 'B', 'L', 'V', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; // 
 
 function onResults(results) {
     canvasCtx.save();
-    // Mirror the display horizontally
-    canvasCtx.translate(canvasElement.width, 0);
-    canvasCtx.scale(-1, 1);
 
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);

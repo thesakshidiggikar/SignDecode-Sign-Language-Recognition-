@@ -344,6 +344,10 @@ body {
     align-items: center;
 }
 
+#output_canvas {
+    transform: scaleX(-1);
+}
+
 .video-container img {
     width: 100%;
     border-radius: 10px;
