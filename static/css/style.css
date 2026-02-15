@@ -84,6 +84,7 @@ body {
 
 .menu-toggle {
     display: none;
+    /* Hidden by default on desktop */
     font-size: 1.8rem;
     cursor: pointer;
     color: var(--text-dark);
@@ -345,7 +346,8 @@ body {
     align-items: center;
 }
 
-#output_canvas {
+#output_canvas,
+#input_video {
     transform: scaleX(-1);
 }
 
@@ -503,15 +505,23 @@ footer {
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
     .navbar {
         width: 95%;
         padding: 1rem 5%;
         top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .menu-toggle {
         display: block;
+    }
+
+    .logo {
+        font-size: 1.4rem;
+        /* Smaller logo on mobile to prevent overlap */
     }
 
     .nav-links {
