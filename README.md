@@ -16,14 +16,27 @@ SignDecode is a real-time sign language recognition system using **hand tracking
    git clone https://github.com/yourusername/SignDecode-Sign-Language-Recognition.git
    cd SignDecode-Sign-Language-Recognition
    ```
-2. **Install dependencies:**
+3. **Install dependencies:**
    ```sh
    pip install -r requirements.txt
    ```
-3. **Run the application:**
-   ```sh
-   python main.py
-   ```
+4. **Run the application:**
+   - **Step 1: Collect Data** (Required if no dataset exists)
+     ```sh
+     python collect_data.py
+     ```
+     Follow the on-screen prompts to record gestures for letters (e.g., 'A', 'B', etc.).
+   
+   - **Step 2: Train Model**
+     ```sh
+     python train_model.py
+     ```
+     This will generate `sign_language_model.h5`.
+
+   - **Step 3: Run the App**
+     ```sh
+     python main.py
+     ```
 
 ## 📂 Project Structure
 ```

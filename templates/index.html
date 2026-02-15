@@ -61,7 +61,9 @@
                         <span class="live-dot"></span>
                     </div>
                     <div class="video-container">
-                        <img src="{{ url_for('video_feed') }}" alt="Camera Feed" id="videoElement">
+                        <video id="webcam" autoplay playsinline style="display:none;"></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        <img src="" alt="Camera Feed" id="videoElement">
                         <div class="scan-line"></div>
                     </div>
                 </div>

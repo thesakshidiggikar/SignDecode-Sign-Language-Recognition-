@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignDecode | AI-Powered Sign Language Recognition</title>
+    <!-- Use relative paths for static assets -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- MediaPipe Libraries for Browser-side AI -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar glass">
+        <div class="logo">Sign<span>Decode</span></div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#dashboard" class="btn-primary">Try It Now</a></li>
+            <li><a href="https://github.com/thesakshidiggikar/SignDecode-Sign-Language-Recognition-" target="_blank"><i class="fab fa-github"></i>
+                    GitHub</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="badge">AI Powered (Client-Side)</div>
+            <h1>Making Communication <br> <span class="gradient-text">Accessible to All</span></h1>
+            <p>Experience the future of gesture recognition. SignDecode translates American Sign Language into text and
+                speech in real-time, bridging the gap between silence and conversation.</p>
+            <div class="hero-btns">
+                <a href="#dashboard" class="btn-primary-large">Get Started</a>
+                <a href="#game" class="btn-secondary-large">Play Sign Challenge</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="circle-1"></div>
+            <div class="circle-2"></div>
+            <div class="hero-icon-box">
+                <i class="fas fa-hands-asl-interpreting"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-header">
+                <h2>Live Translation Studio</h2>
+                <p>Advanced real-time recognition powered by MediaPipe (Browser Edition).</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Camera Feed -->
+                <div class="camera-card glass">
+                    <div class="card-header">
+                        <i class="fas fa-video"></i> Visual Intelligence
+                        <span class="live-dot"></span>
+                    </div>
+                    <div class="video-container">
+                        <!-- We'll use a single canvas for the output -->
+                        <video id="input_video" style="display:none;"></video>
+                        <canvas id="output_canvas" width="640" height="480" style="width: 100%; height: auto; border-radius: 12px;"></canvas>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+
+                <!-- Recognition Output -->
+                <div class="output-card glass">
+                    <div class="card-header">
+                        <i class="fas fa-terminal"></i> Output Stream
+                    </div>
+                    <div class="text-display">
+                        <p id="recognizedText">Waiting...</p>
+                    </div>
+
+                    <div class="controls">
+                        <button id="speakBtn" class="control-btn"><i class="fas fa-volume-up"></i> Listen</button>
+                        <button id="clearBtn" class="control-btn secondary"><i class="fas fa-eraser"></i> Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Section -->
+    <section id="game" class="game-section">
+        <div class="container">
+            <div class="game-card glass">
+                <div class="score-badge">Score: <span id="gameScore">0</span></div>
+                <h2>Sign Challenge</h2>
+                <p>Test your skills! Can you make the sign for...</p>
+
+                <div class="target-sign-container">
+                    <div class="target-sign-label">Target Sign</div>
+                    <div id="targetSign" class="target-sign-value">?</div>
+                </div>
+
+                <div id="gameFeedback" class="game-instructions">
+                    Start highlighting signs to play!
+                </div>
+
+                <div class="game-controls">
+                    <button id="startGameBtn" class="btn-primary" style="margin-top: 20px;">Start New Game</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 SignDecode Team. Premium AI Accessibility Tool.</p>
+    </footer>
+
+    <canvas id="confettiCanvas" class="confetti"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="static/js/script.js"></script>
+</body>
+
+</html>

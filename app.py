@@ -48,81 +48,93 @@ def init_ai():
 # Call init in a thread to not block Flask startup
 threading.Thread(target=init_ai, daemon=True).start()
 
-# --- Video Capture ---
-# Use a lock to prevent race conditions if needed, though simple reading is usually fine
-camera_lock = threading.Lock()
-cap = cv2.VideoCapture(0)
+# --- Video Capture (Disabled for Web) ---
+# cap = cv2.VideoCapture(0) # Removed for deployment compatibility
 
-def generate_frames():
-    global output_text, last_predicted_label, frame_count, model, cap
+import base64
 
-    while True:
-        success, frame = cap.read()
-        if not success:
-            break
-        
-        # Mirror the frame
-        frame = cv2.flip(frame, 1)
-        
-        # Safe AI processing
-        if hands:
-            try:
-                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = hands.process(rgb_frame)
+@app.route('/process_frame', methods=['POST'])
+def process_frame():
+    global output_text, last_predicted_label, frame_count, model, hands
+    from flask import request
+    
+    data = request.get_json()
+    image_data = data.get('image')
+    if not image_data:
+        return jsonify({'error': 'No image data'}), 400
 
-                if results.multi_hand_landmarks:
-                    for hand_landmarks in results.multi_hand_landmarks:
-                        # Draw landmarks if drawer exists
-                        if mp_draw and mp_hands:
-                            mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-                        
-                        # Predict if model and extract_keypoints exist
-                        if model and extract_keypoints:
-                            try:
-                                keypoints = extract_keypoints(hand_landmarks)
-                                prediction = model.predict(np.expand_dims(keypoints, axis=0), verbose=0)
-                                predicted_index = np.argmax(prediction)
+    # Decode base64 image
+    try:
+        header, encoded = image_data.split(",", 1)
+        data = base64.b64decode(encoded)
+        nparr = np.frombuffer(data, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+    if frame is None:
+        return jsonify({'error': 'Image decoding failed'}), 400
+
+    # Mirror the frame (optional, usually handled by CSS/JS on client)
+    frame = cv2.flip(frame, 1)
+    
+    current_char = ""
+    # Safe AI processing
+    if hands and frame is not None:
+        try:
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(rgb_frame)
+
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    # Draw landmarks if drawer exists
+                    if mp_draw and mp_hands:
+                        mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                    
+                    # Predict if model and extract_keypoints exist
+                    if model and extract_keypoints:
+                        try:
+                            keypoints = extract_keypoints(hand_landmarks)
+                            prediction = model.predict(np.expand_dims(keypoints, axis=0), verbose=0)
+                            predicted_index = np.argmax(prediction)
+                            
+                            if predicted_index in labels:
+                                char = labels[predicted_index]
+                                current_char = char
                                 
-                                if predicted_index in labels:
-                                    current_char = labels[predicted_index]
+                                # Stability check
+                                if predicted_index == last_predicted_label:
+                                    frame_count += 1
+                                else:
+                                    frame_count = 0
+                                    last_predicted_label = predicted_index
+                                
+                                # recognized
+                                if frame_count >= THRESHOLD_FRAMES:
+                                    output_text += char
+                                    frame_count = 0 
                                     
-                                    # Stability check
-                                    if predicted_index == last_predicted_label:
-                                        frame_count += 1
-                                    else:
-                                        frame_count = 0
-                                        last_predicted_label = predicted_index
-                                    
-                                    # recognized
-                                    if frame_count >= THRESHOLD_FRAMES:
-                                        output_text += current_char
-                                        frame_count = 0 
-                                        
-                                    # Visual feedback on frame
-                                    cv2.putText(frame, f"Sign: {current_char}", (10, 50), 
-                                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                            except Exception as e:
-                                pass # Prediction error handled silently to keep stream smooth
-            except Exception as e:
-                print(f"Processing error: {e}")
-        else:
-            # Reset stability if no AI
-            frame_count = 0
-            last_predicted_label = None
+                        except Exception as e:
+                            pass
+        except Exception as e:
+            print(f"Processing error: {e}")
 
-        # Encode frame
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame_bytes = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+    # Encode frame back to display landmarks if processed
+    _, buffer = cv2.imencode('.jpg', frame)
+    jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+    
+    return jsonify({
+        'prediction': current_char,
+        'image': f"data:image/jpeg;base64,{jpg_as_text}"
+    })
+
+@app.route('/video_feed')
+def video_feed():
+    return "Deprecated: Use /process_frame", 410
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/status')
 def status():
