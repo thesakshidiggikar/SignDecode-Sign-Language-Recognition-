@@ -9,11 +9,12 @@
     <link rel="stylesheet" href="static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <!-- MediaPipe Libraries for Browser-side AI -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -21,12 +22,15 @@
     <!-- Navbar -->
     <nav class="navbar glass">
         <div class="logo">Sign<span>Decode</span></div>
-        <ul class="nav-links">
+        <div class="menu-toggle" id="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+        <ul class="nav-links" id="nav-list">
             <li><a href="#home">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#dashboard" class="btn-primary">Try It Now</a></li>
-            <li><a href="https://github.com/thesakshidiggikar/SignDecode-Sign-Language-Recognition-" target="_blank"><i class="fab fa-github"></i>
-                    GitHub</a></li>
+            <li><a href="https://github.com/thesakshidiggikar/SignDecode-Sign-Language-Recognition-" target="_blank"><i
+                        class="fab fa-github"></i> GitHub</a></li>
         </ul>
     </nav>
 
@@ -69,7 +73,8 @@
                     <div class="video-container">
                         <!-- We'll use a single canvas for the output -->
                         <video id="input_video" style="display:none;"></video>
-                        <canvas id="output_canvas" width="640" height="480" style="width: 100%; height: auto; border-radius: 12px;"></canvas>
+                        <canvas id="output_canvas" width="640" height="480"
+                            style="width: 100%; height: auto; border-radius: 12px;"></canvas>
                         <div class="scan-line"></div>
                     </div>
                 </div>

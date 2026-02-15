@@ -82,6 +82,13 @@ body {
     color: var(--primary-color);
 }
 
+.menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-dark);
+}
+
 /* Buttons */
 .btn-primary {
     background: linear-gradient(90deg, var(--primary-color), var(--accent-color));

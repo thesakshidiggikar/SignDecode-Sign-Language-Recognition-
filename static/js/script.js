@@ -9,6 +9,27 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// --- Mobile Menu Toggle ---
+const mobileMenu = document.getElementById('mobile-menu');
+const navList = document.getElementById('nav-list');
+
+if (mobileMenu && navList) {
+    mobileMenu.addEventListener('click', () => {
+        navList.classList.toggle('active');
+        mobileMenu.querySelector('i').classList.toggle('fa-bars');
+        mobileMenu.querySelector('i').classList.toggle('fa-times');
+    });
+
+    // Close menu when a link is clicked
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navList.classList.remove('active');
+            mobileMenu.querySelector('i').classList.add('fa-bars');
+            mobileMenu.querySelector('i').classList.remove('fa-times');
+        });
+    });
+}
+
 // --- State Variables ---
 let gameScore = 0;
 let currentTarget = null;
