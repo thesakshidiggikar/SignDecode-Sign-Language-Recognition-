@@ -513,93 +513,166 @@ body {
     z-index: 9999;
 }
 
-/* Atlas & Translator */
-.atlas-section,
-.translator-section {
-    margin-top: 30px;
-    width: 100%;
+/* Atlas & Translator Redesign */
+.atlas-section {
+    margin-top: 50px;
+}
+
+.atlas-subtitle {
+    text-align: center;
+    color: var(--text-gray);
+    margin-bottom: 30px;
+    font-size: 0.95rem;
 }
 
 .atlas-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 15px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 20px;
+    padding: 10px;
 }
 
 .atlas-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
-    transition: 0.3s;
+    gap: 12px;
+    padding: 20px;
+    background: rgba(125, 42, 232, 0.03);
+    border: 1px solid rgba(125, 42, 232, 0.1);
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
 }
 
 .atlas-item:hover {
-    background: var(--bg-white);
-    transform: translateY(-3px);
+    background: rgba(125, 42, 232, 0.08);
+    border-color: var(--accent-color);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(125, 42, 232, 0.1);
 }
 
 .atlas-char {
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--primary-color);
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--accent-color);
 }
 
 .atlas-sign {
-    font-size: 1.5rem;
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Translator Redesign */
+.translator-section.red-accent {
+    margin-top: 50px;
+    border-top: 4px solid #ef4444;
+}
+
+.translator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 30px;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
     color: var(--text-dark);
 }
 
-.translator-container {
-    padding: 20px;
-}
-
-.glass-input {
+.glass-textarea {
     width: 100%;
-    padding: 15px;
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
-    font-size: 1rem;
-    color: var(--text-dark);
-    margin-bottom: 20px;
-    outline: none;
-}
-
-.translator-output {
-    min-height: 100px;
+    height: 150px;
     padding: 20px;
-    background: rgba(79, 70, 229, 0.05);
-    border-radius: 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    outline: none;
+    font-size: 1.1rem;
+    resize: none;
+    transition: 0.3s;
 }
 
-.sign-tile {
+.glass-textarea:focus {
+    background: var(--bg-white);
+    border-color: #ef4444;
+}
+
+.run-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 18px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.run-btn:hover {
+    background: #dc2626;
+    transform: scale(1.02);
+}
+
+.visualizer-box {
+    height: 250px;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-radius: 20px;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: var(--bg-white);
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: var(--shadow-soft);
-    min-width: 50px;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px dashed rgba(239, 68, 68, 0.2);
 }
 
-.sign-tile .char {
-    font-size: 0.7rem;
-    color: var(--text-light);
+.avatar-silhouette {
+    font-size: 8rem;
+    color: rgba(239, 68, 68, 0.1);
+    position: absolute;
+    bottom: -20px;
 }
 
-.sign-tile .sign {
-    font-size: 1.8rem;
-    color: var(--primary-color);
+.visualizer-sign {
+    font-size: 6rem;
+    z-index: 2;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    animation: bounceSign 0.6s infinite alternate;
+}
+
+.visualizer-label {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(239, 68, 68, 0.8);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+@keyframes bounceSign {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.15);
+    }
 }
 
 footer {

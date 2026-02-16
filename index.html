@@ -106,22 +106,39 @@
             <!-- Sign Learning Atlas -->
             <div class="atlas-section glass">
                 <div class="card-header">
-                    <i class="fas fa-book-open"></i> Sign Language Atlas (A-Z)
+                    <i class="fas fa-th"></i> Sign Language Atlas (A-Z)
                 </div>
-                <div class="atlas-grid" id="signAtlas">
-                    <!-- Grid items will be populated by JS or static if icons available -->
+                <div class="atlas-container">
+                    <p class="atlas-subtitle">Click on a sign to see it in action</p>
+                    <div class="atlas-grid" id="signAtlas">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
             </div>
 
             <!-- Text-to-Sign Translator -->
-            <div class="translator-section glass">
+            <div class="translator-section glass red-accent">
                 <div class="card-header">
-                    <i class="fas fa-language"></i> Text-to-Sign Translator
+                    <i class="fas fa-magic"></i> Sign Visualizer
                 </div>
-                <div class="translator-container">
-                    <input type="text" id="translatorInput" placeholder="Type text to see signs..." class="glass-input">
-                    <div id="translatorOutput" class="translator-output">
-                        <!-- Signs will appear here -->
+                <div class="translator-grid">
+                    <div class="translator-left">
+                        <label class="input-label">Enter Text to Translate</label>
+                        <textarea id="translatorInput" placeholder="Hello..." class="glass-textarea"></textarea>
+                        <button id="runTranslateBtn" class="run-btn">
+                            <i class="fas fa-play"></i> Run Sequence
+                        </button>
+                    </div>
+                    <div class="translator-right">
+                        <div class="visualizer-box">
+                            <div class="avatar-silhouette">
+                                <i class="fas fa-user-ninja"></i>
+                            </div>
+                            <div id="visualizerOutput" class="visualizer-sign">
+                                <!-- Animating signs -->
+                            </div>
+                            <div class="visualizer-label" id="visualizerChar">Ready</div>
+                        </div>
                     </div>
                 </div>
             </div>

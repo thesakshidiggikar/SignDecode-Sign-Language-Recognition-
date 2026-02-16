@@ -46,7 +46,9 @@ const feedbackEl = document.getElementById('gameFeedback');
 const speedRange = document.getElementById('speedRange');
 const speedValue = document.getElementById('speedValue');
 const translatorInput = document.getElementById('translatorInput');
-const translatorOutput = document.getElementById('translatorOutput');
+const translateBtn = document.getElementById('runTranslateBtn');
+const visualizerOutput = document.getElementById('visualizerOutput');
+const visualizerChar = document.getElementById('visualizerChar');
 
 // --- Sign Mapping (A-Z) ---
 const signIcons = {
@@ -60,6 +62,7 @@ const signIcons = {
 // --- Populate Sign Atlas ---
 const atlasGrid = document.getElementById('signAtlas');
 if (atlasGrid) {
+    atlasGrid.innerHTML = ""; // Clear existing
     Object.entries(signIcons).forEach(([char, icon]) => {
         const item = document.createElement('div');
         item.className = 'atlas-item';
@@ -67,6 +70,13 @@ if (atlasGrid) {
             <span class="atlas-char">${char}</span>
             <span class="atlas-sign">${icon}</span>
         `;
+        // Make atlas items interactive
+        item.addEventListener('click', () => {
+            if (visualizerOutput) {
+                visualizerOutput.innerText = icon;
+                visualizerChar.innerText = char;
+            }
+        });
         atlasGrid.appendChild(item);
     });
 }
@@ -78,26 +88,45 @@ if (speedRange) {
     });
 }
 
-// --- Text-to-Sign Translator ---
-if (translatorInput) {
-    translatorInput.addEventListener('input', () => {
-        const text = translatorInput.value.toUpperCase();
-        translatorOutput.innerHTML = "";
-        [...text].forEach(char => {
-            if (signIcons[char]) {
-                const tile = document.createElement('div');
-                tile.className = 'sign-tile';
-                tile.innerHTML = `
-                    <span class="char">${char}</span>
-                    <span class="sign">${signIcons[char]}</span>
-                `;
-                translatorOutput.appendChild(tile);
-            } else if (char === " ") {
-                const space = document.createElement('div');
-                space.style.width = "40px";
-                translatorOutput.appendChild(space);
+// --- Text-to-Sign Translator (Sequential) ---
+let translationInterval = null;
+
+if (translateBtn) {
+    translateBtn.addEventListener('click', () => {
+        const text = translatorInput.value.toUpperCase().replace(/[^A-Z ]/g, "");
+        if (!text) return;
+
+        // Reset and start sequence
+        if (translationInterval) clearInterval(translationInterval);
+
+        let index = 0;
+        translateBtn.disabled = true;
+        translateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+
+        translationInterval = setInterval(() => {
+            if (index >= text.length) {
+                clearInterval(translationInterval);
+                visualizerChar.innerText = "Done";
+                translateBtn.disabled = false;
+                translateBtn.innerHTML = '<i class="fas fa-play"></i> Run Sequence';
+                return;
             }
-        });
+
+            const char = text[index];
+            if (signIcons[char]) {
+                visualizerOutput.innerText = signIcons[char];
+                visualizerChar.innerText = char;
+            } else if (char === " ") {
+                visualizerOutput.innerText = "⏳";
+                visualizerChar.innerText = "Space";
+            } else {
+                // Skip unknown
+                index++;
+                return;
+            }
+
+            index++;
+        }, 800); // 800ms for readable speed
     });
 }
 
