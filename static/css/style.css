@@ -402,6 +402,23 @@ body {
     background: rgba(79, 70, 229, 0.05);
     margin: 20px;
     border-radius: 12px;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    max-width: calc(100% - 40px);
+}
+
+.controls-meta {
+    padding: 0 20px 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: var(--text-gray);
+}
+
+.controls-meta input[type="range"] {
+    flex: 1;
+    cursor: pointer;
 }
 
 .controls {
@@ -494,6 +511,95 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 9999;
+}
+
+/* Atlas & Translator */
+.atlas-section,
+.translator-section {
+    margin-top: 30px;
+    width: 100%;
+}
+
+.atlas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.atlas-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.atlas-item:hover {
+    background: var(--bg-white);
+    transform: translateY(-3px);
+}
+
+.atlas-char {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.atlas-sign {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+}
+
+.translator-container {
+    padding: 20px;
+}
+
+.glass-input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    outline: none;
+}
+
+.translator-output {
+    min-height: 100px;
+    padding: 20px;
+    background: rgba(79, 70, 229, 0.05);
+    border-radius: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.sign-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-white);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-soft);
+    min-width: 50px;
+}
+
+.sign-tile .char {
+    font-size: 0.7rem;
+    color: var(--text-light);
+}
+
+.sign-tile .sign {
+    font-size: 1.8rem;
+    color: var(--primary-color);
 }
 
 footer {

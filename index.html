@@ -72,7 +72,7 @@
                     </div>
                     <div class="video-container">
                         <!-- We'll use a single canvas for the output -->
-                        <video id="input_video" style="display:none;"></video>
+                        <video id="input_video" style="display:none;" disablePictureInPicture></video>
                         <canvas id="output_canvas" width="640" height="480"
                             style="width: 100%; height: auto; border-radius: 12px;"></canvas>
                         <div class="scan-line"></div>
@@ -88,9 +88,40 @@
                         <p id="recognizedText">Waiting...</p>
                     </div>
 
+                    <div class="controls-meta">
+                        <label for="speedRange"><i class="fas fa-tachometer-alt"></i> Speech Speed</label>
+                        <input type="range" id="speedRange" min="0.5" max="2" step="0.1" value="1">
+                        <span id="speedValue">1x</span>
+                    </div>
+
                     <div class="controls">
                         <button id="speakBtn" class="control-btn"><i class="fas fa-volume-up"></i> Listen</button>
+                        <button id="spaceBtn" class="control-btn secondary"><i class="fas fa-arrows-alt-h"></i>
+                            Space</button>
                         <button id="clearBtn" class="control-btn secondary"><i class="fas fa-eraser"></i> Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sign Learning Atlas -->
+            <div class="atlas-section glass">
+                <div class="card-header">
+                    <i class="fas fa-book-open"></i> Sign Language Atlas (A-Z)
+                </div>
+                <div class="atlas-grid" id="signAtlas">
+                    <!-- Grid items will be populated by JS or static if icons available -->
+                </div>
+            </div>
+
+            <!-- Text-to-Sign Translator -->
+            <div class="translator-section glass">
+                <div class="card-header">
+                    <i class="fas fa-language"></i> Text-to-Sign Translator
+                </div>
+                <div class="translator-container">
+                    <input type="text" id="translatorInput" placeholder="Type text to see signs..." class="glass-input">
+                    <div id="translatorOutput" class="translator-output">
+                        <!-- Signs will appear here -->
                     </div>
                 </div>
             </div>

@@ -43,6 +43,63 @@ const textBox = document.getElementById('recognizedText');
 const scoreEl = document.getElementById('gameScore');
 const targetEl = document.getElementById('targetSign');
 const feedbackEl = document.getElementById('gameFeedback');
+const speedRange = document.getElementById('speedRange');
+const speedValue = document.getElementById('speedValue');
+const translatorInput = document.getElementById('translatorInput');
+const translatorOutput = document.getElementById('translatorOutput');
+
+// --- Sign Mapping (A-Z) ---
+const signIcons = {
+    'A': '👊', 'B': '✋', 'C': '👌', 'D': '☝️', 'E': '✊',
+    'F': '👌', 'G': '👈', 'H': '👈', 'I': '☝️', 'J': '☝️',
+    'K': '✌️', 'L': '👆', 'M': '✋', 'N': '✋', 'O': '👌',
+    'P': '☝️', 'Q': '👈', 'R': '✌️', 'S': '👊', 'T': '👊',
+    'U': '✌️', 'V': '✌️', 'W': '🖖', 'X': '☝️', 'Y': '🤙', 'Z': '☝️'
+};
+
+// --- Populate Sign Atlas ---
+const atlasGrid = document.getElementById('signAtlas');
+if (atlasGrid) {
+    Object.entries(signIcons).forEach(([char, icon]) => {
+        const item = document.createElement('div');
+        item.className = 'atlas-item';
+        item.innerHTML = `
+            <span class="atlas-char">${char}</span>
+            <span class="atlas-sign">${icon}</span>
+        `;
+        atlasGrid.appendChild(item);
+    });
+}
+
+// --- Speed Control ---
+if (speedRange) {
+    speedRange.addEventListener('input', () => {
+        speedValue.innerText = speedRange.value + "x";
+    });
+}
+
+// --- Text-to-Sign Translator ---
+if (translatorInput) {
+    translatorInput.addEventListener('input', () => {
+        const text = translatorInput.value.toUpperCase();
+        translatorOutput.innerHTML = "";
+        [...text].forEach(char => {
+            if (signIcons[char]) {
+                const tile = document.createElement('div');
+                tile.className = 'sign-tile';
+                tile.innerHTML = `
+                    <span class="char">${char}</span>
+                    <span class="sign">${signIcons[char]}</span>
+                `;
+                translatorOutput.appendChild(tile);
+            } else if (char === " ") {
+                const space = document.createElement('div');
+                space.style.width = "40px";
+                translatorOutput.appendChild(space);
+            }
+        });
+    });
+}
 
 // --- MediaPipe Setup ---
 const videoElement = document.getElementById('input_video');
@@ -73,29 +130,24 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-// --- Sign Recognition Heuristics ---
-// Simple rule-based recognition for demonstration
-// In a production app, you would use a TensorFlow.js model here.
-function recognizeSign(landmarks) {
-    // Basic finger state detection
-    // landmarks[i] : x, y, z (normalized)
-
+/**
+ * Heuristic Helper for recognition
+ * @param {LandmarkList} landmarks 
+ * @param {string} handedness 'Left' or 'Right'
+ */
+function recognizeSign(landmarks, handedness) {
     const thumbTip = landmarks[4];
     const indexTip = landmarks[8];
     const middleTip = landmarks[12];
     const ringTip = landmarks[16];
     const pinkyTip = landmarks[20];
 
-    const indexBase = landmarks[5];
-    const middleBase = landmarks[9];
-    const ringBase = landmarks[13];
-    const pinkyBase = landmarks[17];
+    const thumbBase = landmarks[2];
 
-    // Check if fingers are extended (y-coordinate is smaller than base)
-    const isIndexUp = indexTip.y < indexBase.y;
-    const isMiddleUp = middleTip.y < middleBase.y;
-    const isRingUp = ringTip.y < ringBase.y;
-    const isPinkyUp = pinkyTip.y < pinkyBase.y;
+    const isIndexUp = indexTip.y < landmarks[6].y;
+    const isMiddleUp = middleTip.y < landmarks[10].y;
+    const isRingUp = ringTip.y < landmarks[14].y;
+    const isPinkyUp = pinkyTip.y < landmarks[18].y;
 
     // A: All fingers folded, thumb on side
     if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) return "A";
@@ -103,24 +155,17 @@ function recognizeSign(landmarks) {
     // B: All fingers up, thumb folded
     if (isIndexUp && isMiddleUp && isRingUp && isPinkyUp) return "B";
 
-    // C: Curved hand (approximate)
-    if (indexTip.x > thumbTip.x && Math.abs(indexTip.y - thumbTip.y) > 0.1) {
-        // Simple C logic
-    }
-
     // L: Thumb and Index up
-    if (isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp && thumbTip.x < indexBase.x) return "L";
+    const thumbIsOurHand = handedness === 'Left' ? thumbTip.x > thumbBase.x : thumbTip.x < thumbBase.x;
+    if (isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp && thumbIsOurHand) return "L";
 
     // V: Index and Middle up
     if (isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) return "V";
 
-    // 0: All fingers down (same as A in this simple logic)
-    // 5: All fingers spread (same as B in this simple logic)
-
     return null;
 }
 
-const labels = ['A', 'B', 'L', 'V', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; // Demo subset
+const labels = ['A', 'B', 'L', 'V']; // Demo subset for game
 
 function onResults(results) {
     canvasCtx.save();
@@ -128,12 +173,15 @@ function onResults(results) {
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-    if (results.multiHandLandmarks) {
-        for (const landmarks of results.multiHandLandmarks) {
+    if (results.multiHandLandmarks && results.multiHandedness) {
+        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+            const landmarks = results.multiHandLandmarks[i];
+            const handedness = results.multiHandedness[i].label; // 'Left' or 'Right'
+
             drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#4f46e5', lineWidth: 5 });
             drawLandmarks(canvasCtx, landmarks, { color: '#10b981', lineWidth: 2 });
 
-            const predicted = recognizeSign(landmarks);
+            const predicted = recognizeSign(landmarks, handedness);
             if (predicted) {
                 // Stability logic
                 if (predicted === lastPredictedLabel) {
@@ -196,15 +244,29 @@ document.getElementById('startGameBtn').addEventListener('click', () => {
 });
 
 // --- Controls ---
-document.getElementById('speakBtn').addEventListener('click', () => {
-    const text = textBox.innerText;
-    if (text && text !== "Waiting..." && !text.includes("Error")) {
-        let speech = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(speech);
-    }
-});
+if (document.getElementById('speakBtn')) {
+    document.getElementById('speakBtn').addEventListener('click', () => {
+        const text = textBox.innerText;
+        if (text && text !== "Waiting..." && !text.includes("Error")) {
+            let speech = new SpeechSynthesisUtterance(text);
+            speech.rate = parseFloat(speedRange.value);
+            window.speechSynthesis.speak(speech);
+        }
+    });
+}
 
-document.getElementById('clearBtn').addEventListener('click', () => {
-    outputText = "";
-    textBox.innerText = "Waiting...";
-});
+if (document.getElementById('spaceBtn')) {
+    document.getElementById('spaceBtn').addEventListener('click', () => {
+        if (outputText !== "") {
+            outputText += " ";
+            textBox.innerText = outputText;
+        }
+    });
+}
+
+if (document.getElementById('clearBtn')) {
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        outputText = "";
+        textBox.innerText = "Waiting...";
+    });
+}
