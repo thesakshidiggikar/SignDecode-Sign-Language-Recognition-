@@ -4,15 +4,12 @@ import numpy as np
 import pandas as pd
 import os
 import time
-from labels import labels  # Ensure labels.py contains {0: 'A', 1: 'B', ...}
-
-# Initialize MediaPipe Hands
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7)
-mp_draw = mp.solutions.drawing_utils
+import sys
+sys.path.append('..')
+from src.labels import labels  # Import from src
 
 # Dataset folder and file
-dataset_folder = "dataset"
+dataset_folder = "training/dataset"
 os.makedirs(dataset_folder, exist_ok=True)
 dataset_path = os.path.join(dataset_folder, "sign_data.csv")
 

@@ -15,7 +15,7 @@ THRESHOLD_FRAMES = 15
 current_target_sign = None
 game_score = 0
 import random
-from labels import labels
+from .labels import labels
 available_signs = list(labels.values()) if labels else []
 
 # --- MediaPipe & Model (Lazy Loaded) ---
@@ -29,7 +29,7 @@ def init_ai():
     global hands, model, mp_draw, mp_hands, extract_keypoints
     try:
         import mediapipe as mp
-        from utils import extract_keypoints as ex_kp
+        from .utils import extract_keypoints as ex_kp
         mp_hands = mp.solutions.hands
         mp_draw = mp.solutions.drawing_utils
         extract_keypoints = ex_kp
@@ -40,7 +40,7 @@ def init_ai():
 
     try:
         from tensorflow.keras.models import load_model
-        model = load_model("sign_language_model.h5")
+        model = load_model("models/sign_language_model.h5")
         print("✅ Model loaded successfully.")
     except Exception as e:
         print(f"⚠️ Model not found or error loading: {e}")

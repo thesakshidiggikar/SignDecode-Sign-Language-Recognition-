@@ -2,7 +2,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 
 class SignLanguageModel:
-    def __init__(self, model_path="sign_language_model.h5"):
+    def __init__(self, model_path="models/sign_language_model.h5"):
         self.model = load_model(model_path)
 
     def predict_sign(self, keypoints):

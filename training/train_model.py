@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
 # Load dataset
-dataset_path = "dataset/sign_data.csv"
+dataset_path = "training/dataset/sign_data.csv"
 df = pd.read_csv(dataset_path)
 
 # Separate features (X) and labels (y)
@@ -40,5 +40,5 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50, batch_size=16)
 
 # Save trained model
-model.save("sign_language_model.h5")
-print("Model training complete. Saved as 'sign_language_model.h5'")
+model.save("models/sign_language_model.h5")
+print("Model training complete. Saved as 'models/sign_language_model.h5'")
